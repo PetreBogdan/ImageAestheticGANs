@@ -1,0 +1,7 @@
+.idea/
+.ipynb_checkpoints/
+__pycache__/
+cGAN_samples/
+cGAN_samples_2/
+Others/ImageAesthetics_ECCV2016-20220809T210940Z-001.zip
+ImageAestheticsGANs/AADB/ImageAesthetics_ECCV2016/
