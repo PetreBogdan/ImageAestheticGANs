@@ -1,23 +1,10 @@
 import os
-import random
-
 import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-
 import torch
 import torchvision.transforms as T
-from torch.utils.data import Dataset, DataLoader, random_split
-from torchvision.utils import make_grid
-from typing import Tuple
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
-
+from torch.utils.data import Dataset
 from PIL import Image
-from tqdm import tqdm
 
 
 class AADB(Dataset):
@@ -40,7 +27,9 @@ class AADB(Dataset):
         self.label_csv_path = label_csv_path
         self.image_dir = image_dir
         self.test=test
-        self.transform = T.Compose([T.Resize(size=(256, 256)), T.ToTensor()]) #, T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.transform = T.Compose([T.Resize(size=(256, 256)),
+                                    T.RandomHorizontalFlip(),
+                                    T.ToTensor()])
         self.files, self.labels = self.load_data(self.image_dir, self.label_csv_path, self.test)
 
     def __len__(self):

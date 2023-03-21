@@ -26,21 +26,21 @@ class Generator(nn.Module):
             nn.ConvTranspose2d(self.ngf * 8, self.ngf * 4, 4, 2, 1, bias=False),
             nn.BatchNorm2d(self.ngf * 4),
             nn.ReLU(True),
-            # state size. (ngf*4) x (image_size//8) x (image_size//8)
+            # (ngf*4) x (image_size//8) x (image_size//8)
 
             nn.ConvTranspose2d(self.ngf * 4, self.ngf * 2, 4, 2, 1, bias=False),
             nn.BatchNorm2d(self.ngf * 2),
             nn.ReLU(True),
-            # state size. (ngf*2) x (image_size//4) x (image_size//4)
+            # (ngf*2) x (image_size//4) x (image_size//4)
 
             nn.ConvTranspose2d(self.ngf * 2, self.ngf, 4, 2, 1, bias=False),
             nn.BatchNorm2d(self.ngf),
             nn.ReLU(True),
-            # state size. (ngf) x (image_size//2) x (image_size//2)
+            # (ngf) x (image_size//2) x (image_size//2)
 
             nn.ConvTranspose2d(self.ngf, n_channels, 4, 2, 1, bias=False),
             nn.Tanh()
-            # state size. (nc) x image_size x image_size
+            # (nc) x image_size x image_size
         )
 
     def forward(self, z, c):
@@ -52,37 +52,34 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         self.ndf = ndf
         self.main = nn.Sequential(
-            # input is (nc) x image_size x image_size
+            # (nc) x image_size x image_size
             nn.Conv2d(n_channels, self.ndf, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf) x (image_size//2) x (image_size//2)
+            # (ndf) x (image_size//2) x (image_size//2)
 
             nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
             nn.LayerNorm([ndf * 2, image_size // 4, image_size // 4]),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*2) x (image_size//4) x (image_size//4)
+            # (ndf*2) x (image_size//4) x (image_size//4)
 
             nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
             nn.LayerNorm([ndf * 4, image_size // 8, image_size // 8]),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*4) x (image_size//8) x (image_size//8)
+            # (ndf*4) x (image_size//8) x (image_size//8)
 
             nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
             nn.LayerNorm([ndf * 8, image_size // 16, image_size // 16]),
             nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*8) x (image_size//16) x (image_size//16)
+            # (ndf*8) x (image_size//16) x (image_size//16)
             Reshape(ndf * 8 * (image_size // 16) ** 2),
         )
 
         self.adv = nn.Sequential(
             nn.Linear(ndf * 8 * (image_size // 16) ** 2, 1),
-            # 注意没有WGAN-GP没有nn.Sigmoid()
         )
 
         self.aux = nn.Sequential(
             nn.Linear(ndf * 8 * (image_size // 16) ** 2, n_classes),
-            # nn.Softmax(1)
-            # 不能使用Softmax，因为各标签不相关，和也不一定为1
             nn.Sigmoid()
         )
 
