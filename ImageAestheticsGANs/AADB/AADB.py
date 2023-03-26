@@ -23,10 +23,11 @@ class AADB(Dataset):
         "vivid_color",
     ]
 
-    def __init__(self, image_dir, label_csv_path, test=False):
+    def __init__(self, image_dir, label_csv_path, test=False, drop_score=False):
         self.label_csv_path = label_csv_path
         self.image_dir = image_dir
         self.test=test
+        self.drop_score = drop_score
         self.transform = T.Compose([T.Resize(size=(256, 256)),
                                     T.RandomHorizontalFlip(),
                                     T.ToTensor()])
@@ -46,14 +47,16 @@ class AADB(Dataset):
         csv_file = csv_path + 'Dataset.csv' if not test else csv_path + 'Dataset_test.csv'
         label_csv = pd.read_csv(csv_file, delimiter=",")
         files = [os.path.join(image_dir, f) for f in label_csv['ImageFile']]
-        #         labels = np.asarray([label.values for index, label in label_csv.drop(['ImageFile'], axis=1).iterrows()])
-        labels = []
-        for index, label in label_csv.drop(['ImageFile'], axis=1).iterrows():  # this is for moving score to the last value
-            label = list(label.values)
-            label.append(label.pop(9))
-            labels.append(label)
+        if self.drop_score:
+            labels = np.asarray([label.values for index, label in label_csv.drop(['ImageFile', 'score'], axis=1).iterrows()])
+        else:
+            labels = []
+            for index, label in label_csv.drop(['ImageFile'], axis=1).iterrows():  # this is for moving score to the last value
+                label = list(label.values)
+                label.append(label.pop(9))
+                labels.append(label)
 
-        labels = np.asarray(labels)
+            labels = np.asarray(labels)
         return files, labels
 
 

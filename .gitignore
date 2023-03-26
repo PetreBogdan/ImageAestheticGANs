@@ -1,7 +1,8 @@
 .idea/
 .ipynb_checkpoints/
 __pycache__/
-cGAN_samples/
-cGAN_samples_2/
+ImageAestheticsGANs/cGAN_64x64
+ImageAestheticsGANs/cGAN_256x256
 Others/ImageAesthetics_ECCV2016-20220809T210940Z-001.zip
 ImageAestheticsGANs/AADB/ImageAesthetics_ECCV2016/
+ImageAestheticsGANs/classifier_ckpt
