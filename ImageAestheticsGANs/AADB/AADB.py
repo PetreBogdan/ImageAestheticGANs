@@ -5,6 +5,7 @@ import torch
 import torchvision.transforms as T
 from torch.utils.data import Dataset
 from PIL import Image
+import matplotlib.pyplot as plt
 
 
 class AADB(Dataset):
@@ -67,11 +68,45 @@ class AADB(Dataset):
     def get_classes(self):
         return len(AADB.attributes)
 
+    def get_classes_histogram_graphs(self, attribute):
 
-class AADB_rounded(AADB):
+        csv_file = self.label_csv_path + 'Dataset.csv' if not self.test else self.label_csv_path + 'Dataset_test.csv'
+        label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile'], axis=1)
+
+        if attribute == "all":
+            fig, axs = plt.subplots(nrows=label_csv.shape[1], ncols=1, figsize=(10, 50))
+            for i, col in enumerate(label_csv.columns):
+                axs[i].hist(label_csv[col])
+                axs[i].set_title(col)
+
+            # Show the figure
+            plt.tight_layout()
+            plt.show()
+        else:
+            # Create a histogram of the selected column
+            plt.hist(label_csv[attribute])
+
+            # Set the title and axis labels
+            plt.title(attribute)
+            plt.xlabel('Value')
+            plt.ylabel('Frequency')
+
+            # Show the plot
+            plt.show()
+
+    def get_median(self, attribute):
+
+        csv_file = self.label_csv_path + 'Dataset.csv' if not self.test else self.label_csv_path + 'Dataset_test.csv'
+        label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile'], axis=1)
+
+        values = label_csv[attribute].values
+
+        return np.mean(values)
+
+class AADB_classes(AADB):
 
     def __init__(self, image_dir, label_csv_path, test=False):
-        super(AADB_rounded, self).__init__(image_dir, label_csv_path, test)
+        super(AADB_classes, self).__init__(image_dir, label_csv_path, test)
 
     def load_data(self, image_dir, csv_path, test=False):
         csv_file = csv_path + 'Dataset.csv' if not test else csv_path + 'Dataset_test.csv'
@@ -118,4 +153,31 @@ class AADB_rounded(AADB):
 
     @staticmethod
     def get_classes():
-        return len(AADB_rounded.attributes)
+        return len(AADB_classes.attributes)
+
+class AADB_binaries(AADB):
+
+    def __init__(self, image_dir, label_csv_path, test=False):
+        super(AADB_binaries, self).__init__(image_dir, label_csv_path, test)
+
+    def load_data(self, image_dir, csv_path, test=False):
+        csv_file = csv_path + 'Dataset.csv' if not test else csv_path + 'Dataset_test.csv'
+        label_csv = pd.read_csv(csv_file, delimiter=",")
+        files = [os.path.join(image_dir, f) for f in label_csv['ImageFile']]
+        label_csv_binaries = self.binarize_data(label_csv)     # this is for norming values
+        labels = np.asarray([label.values for index, label in label_csv_binaries.iterrows()])
+        return files, labels
+
+    # def binarize_data(self, csv_file):
+
+
+
+if __name__ == "__main__":
+
+
+    image_dir = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\ImageAesthetics_ECCV2016\datasetImages_warp256"
+    csv_path = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\\"
+    aadb = AADB(image_dir, csv_path, test=False)
+
+    aadb.get_classes_histogram_graphs('BalacingElements')
+    print(aadb.get_median('BalacingElements'))

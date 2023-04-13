@@ -6,3 +6,5 @@ ImageAestheticsGANs/cGAN_256x256
 Others/ImageAesthetics_ECCV2016-20220809T210940Z-001.zip
 ImageAestheticsGANs/AADB/ImageAesthetics_ECCV2016/
 ImageAestheticsGANs/classifier_ckpt
+ImageAestheticsGANs/classifier_ckpt_2_pretrained/
+ImageAestheticsGANs/classifier_ckpt_2/
