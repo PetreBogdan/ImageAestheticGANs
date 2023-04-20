@@ -6,6 +6,7 @@ import torchvision.transforms as T
 from torch.utils.data import Dataset
 from PIL import Image
 import matplotlib.pyplot as plt
+from ImageAestheticsGANs.utils.utils import *
 
 
 class AADB(Dataset):
@@ -22,6 +23,7 @@ class AADB(Dataset):
         "rule_of_thirds",
         "symmetry",
         "vivid_color",
+        "real"          # this is always 0
     ]
 
     def __init__(self, image_dir, label_csv_path, test=False, drop_score=False):
@@ -29,7 +31,7 @@ class AADB(Dataset):
         self.image_dir = image_dir
         self.test=test
         self.drop_score = drop_score
-        self.transform = T.Compose([T.Resize(size=(256, 256)),
+        self.transform = T.Compose([T.Resize(size=(128, 128)),
                                     T.RandomHorizontalFlip(),
                                     T.ToTensor()])
         self.files, self.labels = self.load_data(self.image_dir, self.label_csv_path, self.test)
@@ -94,14 +96,17 @@ class AADB(Dataset):
             # Show the plot
             plt.show()
 
-    def get_median(self, attribute):
+    def get_median(self, attribute, csv_file):
 
-        csv_file = self.label_csv_path + 'Dataset.csv' if not self.test else self.label_csv_path + 'Dataset_test.csv'
-        label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile'], axis=1)
+        # csv_file = self.label_csv_path + 'Dataset.csv' if not self.test else self.label_csv_path + 'Dataset_test.csv'
 
-        values = label_csv[attribute].values
+        values = csv_file[attribute].values
 
         return np.mean(values)
+
+    @staticmethod
+    def get_classes():
+        return len(AADB_classes.attributes)
 
 class AADB_classes(AADB):
 
@@ -151,10 +156,6 @@ class AADB_classes(AADB):
 
         return csv_file
 
-    @staticmethod
-    def get_classes():
-        return len(AADB_classes.attributes)
-
 class AADB_binaries(AADB):
 
     def __init__(self, image_dir, label_csv_path, test=False):
@@ -162,14 +163,21 @@ class AADB_binaries(AADB):
 
     def load_data(self, image_dir, csv_path, test=False):
         csv_file = csv_path + 'Dataset.csv' if not test else csv_path + 'Dataset_test.csv'
-        label_csv = pd.read_csv(csv_file, delimiter=",")
+        label_csv = pd.read_csv(csv_file, delimiter=",").drop(['score'], axis=1)
         files = [os.path.join(image_dir, f) for f in label_csv['ImageFile']]
-        label_csv_binaries = self.binarize_data(label_csv)     # this is for norming values
-        labels = np.asarray([label.values for index, label in label_csv_binaries.iterrows()])
+        label_csv_binaries = self.binarize_data(label_csv.drop(['ImageFile'], axis=1))     # this is for norming values
+        labels = np.asarray([np.append(label.values, 0) for index, label in label_csv_binaries.iterrows()])
         return files, labels
 
-    # def binarize_data(self, csv_file):
+    def binarize_data(self, csv_file):
 
+        for column in csv_file:
+            values = csv_file[column].values
+            median = np.mean(values)
+            bin_values = [0 if val <= median else 1 for val in values]
+            csv_file[column] = bin_values
+
+        return csv_file
 
 
 if __name__ == "__main__":
@@ -177,7 +185,10 @@ if __name__ == "__main__":
 
     image_dir = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\ImageAesthetics_ECCV2016\datasetImages_warp256"
     csv_path = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\\"
-    aadb = AADB(image_dir, csv_path, test=False)
+    aadb = AADB_binaries(image_dir, csv_path, test=False)
 
-    aadb.get_classes_histogram_graphs('BalacingElements')
-    print(aadb.get_median('BalacingElements'))
+    show_example(*aadb[0])
+
+    aadb.get_classes_histogram_graphs('all')
+    # print(aadb.get_median('Symmetry'))
+

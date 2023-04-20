@@ -6,13 +6,20 @@ def normalize(array):
     array_norm = (array - np.min(array)) / (np.max(array) - np.min(array))
     return array_norm
 
-csv_file = "F:\Projects\Disertatie\Dataset.csv"
-label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile', 'score'], axis=1)
-print(label_csv.head())
+def get_median(attribute, csv, test=False):
 
-# for index, value in label_csv.iterrows():
-#     print(value)
-#     for item in value:
-#         print(item)
-#
-#     break
+    # csv_file = csv + 'Dataset.csv' if not test else csv + 'Dataset_test.csv'
+    label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile'], axis=1)
+
+    values = label_csv[attribute].values
+
+    return np.mean(values)
+
+csv_file = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\Dataset.csv"
+label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile', 'score'], axis=1)
+# print(label_csv.head())
+
+for index, label in label_csv.drop(['ImageFile'], axis=1).iterrows():  # this is for moving score to the last value
+    label = list(label.values)
+    label.append(label.pop(9))
+    labels.append(label)

@@ -25,7 +25,8 @@ class RegressionNetwork(nn.Module):
             nn.Linear(
                 in_features=backbone.num_features,
                 out_features=num_attributes
-            )
+            ),
+            nn.Sigmoid()
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

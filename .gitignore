@@ -8,3 +8,10 @@ ImageAestheticsGANs/AADB/ImageAesthetics_ECCV2016/
 ImageAestheticsGANs/classifier_ckpt
 ImageAestheticsGANs/classifier_ckpt_2_pretrained/
 ImageAestheticsGANs/classifier_ckpt_2/
+ImageAestheticsGANs/TheSUN/LabelMeToolbox-master/
+ImageAestheticsGANs/TheSUN/SUN2012.tar.gz
+ImageAestheticsGANs/TheSUN/SUN2012/
+ImageAestheticsGANs/cGAN_128x128/
+ImageAestheticsGANs/results.xlsx
+ImageAestheticsGANs/~$results.xlsx
+RESULTS/
