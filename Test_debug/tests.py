@@ -15,11 +15,37 @@ def get_median(attribute, csv, test=False):
 
     return np.mean(values)
 
-csv_file = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\Dataset.csv"
-label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile', 'score'], axis=1)
-# print(label_csv.head())
+attributes = [
+        "BalacingElements",
+        "ColorHarmony",
+        "Content",
+        "DoF",
+        "Light",
+        "MotionBlur",
+        "Object",
+        "Repetition",
+        "RuleOfThirds",
+        "Symmetry",
+        "VividColor",
+        "score",
+        # "real"          # this is always 0
+    ]
 
-for index, label in label_csv.drop(['ImageFile'], axis=1).iterrows():  # this is for moving score to the last value
-    label = list(label.values)
-    label.append(label.pop(9))
-    labels.append(label)
+# csv_file = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\Dataset.csv"
+# label_csv = pd.read_csv(csv_file, delimiter=",", usecols=attributes)
+# # print(label_csv.head())
+#
+# for column in label_csv:
+#     print(column)
+
+path = "F:\Projects\Disertatie\ImageAestheticsGANs\AVA_dataset\style_image_lists\\test.multilab"
+with open(path, 'r') as file:
+    labels = []
+    with open(path, 'r') as l:
+        for line in l:
+            print(line)
+            label = line.split()
+            print(label)
+            labels.append([int(att) for att in label])
+
+print(labels)

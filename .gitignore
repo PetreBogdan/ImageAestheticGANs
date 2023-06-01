@@ -15,3 +15,10 @@ ImageAestheticsGANs/cGAN_128x128/
 ImageAestheticsGANs/results.xlsx
 ImageAestheticsGANs/~$results.xlsx
 RESULTS/
+ImageAestheticsGANs/AVA_dataset/aesthetics_image_lists
+ImageAestheticsGANs/AVA_dataset/images
+ImageAestheticsGANs/AVA_dataset/style_image_lists
+ImageAestheticsGANs/AVA_dataset/AVA.txt
+ImageAestheticsGANs/AVA_dataset/challenges.txt
+ImageAestheticsGANs/AVA_dataset/README.txt
+ImageAestheticsGANs/AVA_dataset/tags.txt

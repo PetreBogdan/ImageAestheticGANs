@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import torchvision.transforms as T
 from torchvision.utils import make_grid
+from PIL import Image
 
 
 attributes = [
@@ -84,6 +85,7 @@ def display_aesthetics(x, y, y_pred, interval=[-0.2, 0.2], score=True):
 def show_example(img, label):
     print(label)
     plt.imshow(img.permute(1, 2, 0))
+    plt.show()
 
 def show_batch(dl):
     for images, labels in dl:
@@ -107,3 +109,12 @@ def round_labels(labels):
             labels[index] = 4
 
     return labels
+
+def read_image_transform(path):
+
+
+    transforms = T.Compose([T.Resize(size=(64, 64)),
+                            T.ToTensor()])
+
+    image = Image.open(path).convert("RGB")
+    return transforms(image)
