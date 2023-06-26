@@ -1,43 +1,58 @@
 import os
+import sys
+sys.path.append(".")
 
 from AADB.AADB import AADB_binaries
-import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import  DataLoader
 import torchvision.utils as vutils
 import torch.optim as optim
 import torch.autograd as autograd
-from TheSUN.SUN import SUN
 from models.ACGAN import Generator, Discriminator
-# from models.cGAN import Generator, Discriminator
 from utils.utils import *
-from models.ResNet18 import RegressionNetwork
 import torch.nn as nn
+import argparse
 
-import torchvision.transforms as T
-from PIL import Image
+parser = argparse.ArgumentParser(description="Arguments for training loop")
+parser.add_argument('--batch_size', type=int, help="Number of batches")
+parser.add_argument('--max_epochs', type=int, default=200, help="Number of epochs")
+parser.add_argument('--latent_dim', type=int, default=128, help="Latent dimension")
+parser.add_argument('--n_channels', type=int, default=3, help="Number of channels")
+parser.add_argument('--image_size', type=int,default=64, help="Image dimensions")
+parser.add_argument('--ngf', type=int, default=128, help="Feature map for generator")
+parser.add_argument('--ndf', type=int, default=128, help="Feature map for discriminator")
+parser.add_argument('--beta', type=float, default=0.5, help="Beta for Adam optimizer")
+parser.add_argument('--lrg', type=float, default=0.0002, help="Learning rate of the generator")
+parser.add_argument('--lrd', type=float, default=0.0002, help="Learning rate for the discriminator")
+parser.add_argument('--is_load', type=bool, default=False, help="Load model?")
+parser.add_argument('--ckpt_path', type=str, help="Checkpoint for loading")
+parser.add_argument('--n_critic', type=int, default=5, help="Iterations of the critic")
+parser.add_argument('--lam_gp', type=int, default=10, help="Lambda Gradient Penalty")
+parser.add_argument('--sample_path', type=str, help="Results folder")
+
+args = parser.parse_args()
 
 
-batch_size = 64
-max_epochs = 2400
-latent_dim = 128
-n_channels = 3
-image_size = 128
-ngf = 128   # feature map gen
-ndf = 128   # feature map disc
-beta = 0.5  # Adam
-lrg = 0.0003  # Learning rate for optimizers
-lrd = 0.0001
-is_load = True
-ckpt_path = 'F:\Projects\Disertatie\ImageAestheticsGANs\cGAN_128x128\checkpoint_iteration_185999.tar'
-n_critic = 5
-lam_gp = 10
+batch_size = args.batch_size
+max_epochs = args.max_epochs
+latent_dim = args.latent_dim
+n_channels = args.n_channels
+image_size = args.image_size
+ngf = args.ngf   # feature map gen
+ndf = args.ndf   # feature map disc
+beta = args.beta  # Adam
+lrg = args.lrg  # Learning rate for optimizers
+lrd = args.lrd
+is_load = args.is_load
+ckpt_path = args.ckpt_path
+n_critic = args.n_critic
+lam_gp = args.lam_gp
 data_path = 'F:\Projects\Disertatie\ImageAestheticsGANs\AADB\\'
-samples_path = "F:\Projects\Disertatie\ImageAestheticsGANs\cGAN_128x128"
+samples_path = args.sample_path
 os.makedirs(samples_path, exist_ok=True)
 
-aadb = AADB_binaries(data_path, test=False)
-aadb_test = AADB_binaries(data_path, test=True)
+aadb = AADB_binaries(data_path, image_size)
+aadb_test = AADB_binaries(data_path, image_size, test=True)
 n_classes = aadb.get_num_classes()
 aadb = aadb + aadb_test
 
@@ -48,7 +63,7 @@ if torch.cuda.is_available():
 else:
     device = torch.device('cpu')
 
-print(device)
+print(f"Using device: {device}")
 
 n_sample = 64
 sample_noise = torch.randn(n_sample, latent_dim, device=device)

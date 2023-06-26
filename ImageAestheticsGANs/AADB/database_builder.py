@@ -54,7 +54,4 @@ df.to_csv(r'Dataset.csv', index = False, header=True)
 df = pd.DataFrame.from_dict(dataset_test)
 df.to_csv(r'Dataset_test.csv', index = False, header=True)
 
-
-
-
 print("---Execution Time is %s seconds ---" % (time.time() -start_time))

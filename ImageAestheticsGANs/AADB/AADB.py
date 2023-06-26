@@ -1,40 +1,35 @@
 import os
-import numpy as np
 import pandas as pd
 import torch
-import torchvision.transforms as T
 from torch.utils.data import Dataset
-from PIL import Image
-import matplotlib.pyplot as plt
 from ImageAestheticsGANs.utils.utils import *
 
 
 class AADB(Dataset):
-
     attributes = [
         "BalacingElements",
-        "ColorHarmony", # asta am pus
+        "ColorHarmony",
         "Content",
         "DoF",
-        "Light",    # asta am pus
+        "Light",
         "MotionBlur",
         "Object",
         "Repetition",
-        "RuleOfThirds", # asta am pus
+        "RuleOfThirds",
         "Symmetry",
-        "VividColor",   # asta am pus
+        "VividColor",
         # "score",
     ]
 
-    def __init__(self, data_path, test=False):
+    def __init__(self, data_path, img_size, test=False):
         self.data_path = data_path
         self.image_dir = os.path.join(data_path, "ImageAesthetics_ECCV2016", "datasetImages_warp256")
-        self.test=test
-        self.transform = T.Compose([T.Resize(size=(128, 128)),
-                                    #T.RandomCrop((64, 64)),
+        self.test = test
+        self.transform = T.Compose([T.Resize(size=(img_size, img_size)),
+                                    # T.RandomCrop((64, 64)),
                                     T.RandomHorizontalFlip(),
                                     T.ToTensor()])
-                                    #T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        # T.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         self.files, self.labels = self.load_data(self.image_dir, self.data_path, self.test)
 
     def __len__(self):
@@ -42,7 +37,7 @@ class AADB(Dataset):
 
     def __getitem__(self, index):
         image = Image.open(self.files[index]).convert("RGB")
-#         print("Image Name: {}".format(self.files[index].split("/")[-1]))
+        #         print("Image Name: {}".format(self.files[index].split("/")[-1]))
         image = self.transform(image)
         label = torch.from_numpy(self.labels[index])
         return image, label
@@ -64,7 +59,8 @@ class AADB(Dataset):
 
     def get_classes_histogram_graphs(self, attribute):
 
-        csv_file = os.path.join(self.data_path, 'Dataset.csv') if not self.test else os.path.join(self.data_path, 'Dataset_test.csv')
+        csv_file = os.path.join(self.data_path, 'Dataset.csv') if not self.test else os.path.join(self.data_path,
+                                                                                                  'Dataset_test.csv')
         label_csv = pd.read_csv(csv_file, delimiter=",").drop(['ImageFile'], axis=1)
 
         if attribute == "all":
@@ -100,12 +96,12 @@ class AADB(Dataset):
 
         return np.mean(values)
 
-class AADB_binaries(AADB):
 
+class AADB_binaries(AADB):
     binary_data = None
 
-    def __init__(self, data_path, test=False):
-        super(AADB_binaries, self).__init__(data_path, test)
+    def __init__(self, data_path, img_size, test=False):
+        super(AADB_binaries, self).__init__(data_path, img_size, test)
 
     def load_data(self, image_dir, data_path, test=False):
         csv_file = os.path.join(data_path, 'Dataset.csv') if not test else os.path.join(data_path, 'Dataset_test.csv')
@@ -129,23 +125,21 @@ class AADB_binaries(AADB):
     def get_percent_binary_data(self, attribute=None):
 
         if attribute == 'all' or attribute is None:
-            for column in  AADB_binaries.binary_data:
+            for column in AADB_binaries.binary_data:
                 print(f"{column}: {np.sum(self.binary_data[column].values) / len(self.binary_data[column].values)}")
 
         else:
-            print(f"{attribute}: {np.sum(self.binary_data[attribute].values) / len(self.binary_data[attribute].values)}")
+            print(
+                f"{attribute}: {np.sum(self.binary_data[attribute].values) / len(self.binary_data[attribute].values)}")
+
 
 if __name__ == "__main__":
-
-
     data_path = "F:\Projects\Disertatie\ImageAestheticsGANs\AADB\\"
-    aadb = AADB_binaries(data_path, test=False)
+    # aadb = AADB(data_path, 256, test=False)
+    aadb = AADB_binaries(data_path, 128, test=False)
     # aadb.get_classes_histogram_graphs("all")
-    #
-    # show_example(*aadb[0])
-    # plt.show()
 
     aadb.get_percent_binary_data()
 
-
-
+    show_example(*aadb[0])
+    plt.show()
